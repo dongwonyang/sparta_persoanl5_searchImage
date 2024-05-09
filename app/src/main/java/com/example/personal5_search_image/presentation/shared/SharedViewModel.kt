@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.personal5_search_image.presentation.bookmark.BookmarkListItem
+import com.example.personal5_search_image.presentation.search.SearchListEvent
 import com.example.personal5_search_image.presentation.search.SearchListItem
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -28,6 +29,23 @@ class SharedViewModel : ViewModel(){
             )
         }.also{
             _event.emit(SearchSharedEvent.UpdateBookmark(it))
+        }
+    }
+
+    fun deleteBookmarkItems(list: List<BookmarkListItem>) = viewModelScope.launch {
+        list.filter {
+            it.isBookmarked.not()
+        }.map {
+            SearchListItem.ImageItem(
+                id=it.id,
+                displaySiteName = it.displaySiteName,
+                dateTime = it.dateTime,
+                docUrl = it.docUrl,
+                thumbnailUrl = it.thumbnailUrl,
+                isBookmarked = it.isBookmarked
+            )
+        }.also{
+            _event.emit(SearchSharedEvent.DeleteBookmark(it))
         }
     }
 }

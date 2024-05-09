@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.personal5_search_image.presentation.shared.SearchSharedEvent
 import com.example.personal5_search_image.presentation.shared.SharedViewModel
 import com.example.personal5search_image.databinding.FragmentSearchImageBinding
 import kotlinx.coroutines.flow.collectLatest
@@ -87,6 +88,15 @@ class SearchFragment : Fragment() {
                     onEvent(event)
                 }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            sharedViewModel.event.flowWithLifecycle(lifecycle)
+                .collectLatest { event->
+                    onSharedEvent(event)
+                }
+        }
+
+
     }
 
     private fun onBind(state: SearchUiState) = with(binding) {
@@ -99,6 +109,11 @@ class SearchFragment : Fragment() {
         when(event){
             is SearchListEvent.UpdateBookmark -> sharedViewModel.updateBookmarkItems(event.list)
         }
+    }
+
+    private fun onSharedEvent(event: SearchSharedEvent) = when(event){
+        is SearchSharedEvent.DeleteBookmark -> viewModel.deleteBookmark(event.list)
+        else -> {}
     }
 
     fun search(searchKey: String){

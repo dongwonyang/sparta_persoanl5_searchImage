@@ -97,6 +97,22 @@ class SearchViewModel(
         }
         _event.emit(SearchListEvent.UpdateBookmark(uiState.value.list))
     }
+
+    fun deleteBookmark(list: List<SearchListItem>){
+        val currentList = uiState.value.list.toMutableList()
+        for (newItem in list) {
+            val index = currentList.indexOfFirst { it.id == newItem.id }
+            if (index != -1) {
+                currentList[index] = newItem
+            }
+        }
+
+        _uiState.update { prev->
+            prev.copy(
+                list = currentList
+            )
+        }
+    }
 }
 
 class SearchViewModelFactory() : ViewModelProvider.Factory {

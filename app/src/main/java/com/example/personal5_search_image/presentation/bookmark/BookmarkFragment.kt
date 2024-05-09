@@ -24,7 +24,11 @@ class BookmarkFragment : Fragment() {
     private var _binding: FragmentBookmarkBinding? = null
     private val binding: FragmentBookmarkBinding get() = _binding!!
     private val adapter: BookmarkListAdapter by lazy {
-        BookmarkListAdapter()
+        BookmarkListAdapter(
+            onBookmark = {item ->
+                viewModel.onClickBookmark(item)
+            }
+        )
     }
 
     private val sharedViewModel: SharedViewModel by activityViewModels()
@@ -65,6 +69,15 @@ class BookmarkFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.event.flowWithLifecycle(lifecycle)
+                .collectLatest { event ->
+                    onEvent(event)
+                }
+        }
+
+
+
+        viewLifecycleOwner.lifecycleScope.launch {
             sharedViewModel.event.flowWithLifecycle(lifecycle)
                 .collectLatest { event ->
                     onSharedEvent(event)
@@ -77,6 +90,7 @@ class BookmarkFragment : Fragment() {
     ){
         when(event){
             is SearchSharedEvent.UpdateBookmark -> viewModel.onUpdateBookmark(event.list)
+            is SearchSharedEvent.DeleteBookmark -> {}
         }
     }
 
@@ -84,5 +98,9 @@ class BookmarkFragment : Fragment() {
     private fun onBind(state: BookmarkUiState) = with(binding){
         adapter.submitList(state.list)
         progressBookmark.isVisible = state.isLoading
+    }
+
+    private fun onEvent(event: BookmarkListEvent) = when(event){
+        is BookmarkListEvent.DeleteBookmark -> sharedViewModel.deleteBookmarkItems(event.list)
     }
 }

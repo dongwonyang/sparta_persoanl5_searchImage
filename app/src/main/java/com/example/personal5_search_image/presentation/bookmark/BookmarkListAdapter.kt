@@ -12,7 +12,9 @@ import com.example.personal5search_image.databinding.ItemSearchImageBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class BookmarkListAdapter
+class BookmarkListAdapter(
+    private val onBookmark:(BookmarkListItem) -> Unit
+)
     : ListAdapter<BookmarkListItem, BookmarkListAdapter.ViewHolder>(
     object : DiffUtil.ItemCallback<BookmarkListItem>() {
         override fun areItemsTheSame(
@@ -37,7 +39,8 @@ class BookmarkListAdapter
         abstract fun onBind(item: BookmarkListItem)
     }
 
-    class ImageViewHolder(private val binding: ItemSearchImageBinding) : ViewHolder(binding.root) {
+    class ImageViewHolder(private val binding: ItemSearchImageBinding,
+        private val onBookmark: (BookmarkListItem) -> Unit) : ViewHolder(binding.root) {
 
         override fun onBind(item: BookmarkListItem) = with(binding) {
             ivSearchImage.load(item.thumbnailUrl)
@@ -46,6 +49,10 @@ class BookmarkListAdapter
             tvDate.text = sdf.format(item.dateTime)
             if(item.isBookmarked)ivBookmaker.setImageResource(R.drawable.ic_bookmark_black)
             else ivBookmaker.setImageResource(R.drawable.ic_bookmark_none)
+
+            ivBookmaker.setOnClickListener {
+                onBookmark(item)
+            }
         }
     }
 
@@ -57,8 +64,8 @@ class BookmarkListAdapter
             ItemSearchImageBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
-                false
-            )
+                false),
+            onBookmark
         )
     }
 
